@@ -1,0 +1,122 @@
+import java.util.*;
+public class TollBoothSystem {
+    private Map<String, Double> dateWiseToll;
+    private Map<String, Double> monthWiseToll;
+    private Map<String, Double> yearWiseToll;
+    private int carTotal;
+    private double cashTotal;
+    private static final String[] vehicleTypes = {"Car", "LCV", "Truck", "TACV", "MAV", "OV"};
+    private static final double[] tollRates = {85.0, 140.0, 295.0, 320.0, 460.0, 560.0};
+    public TollBoothSystem() {
+        dateWiseToll = new HashMap<>();
+        monthWiseToll = new HashMap<>();
+        yearWiseToll = new HashMap<>();
+        carTotal = 0;
+        cashTotal = 0.0;
+    }
+    public void payToll(String vehicleType, String date) {
+        int index = getVehicleIndex(vehicleType);
+        if (index == -1) {
+            System.out.println("Invalid vehicle type.");
+            return;
+        }
+        double amount = tollRates[index];
+        carTotal++;
+        cashTotal += amount;
+        collectToll(date, amount);
+    }
+    private int getVehicleIndex(String vehicleType) {
+        for (int i = 0; i < vehicleTypes.length; i++) {
+            if (vehicleTypes[i].equalsIgnoreCase(vehicleType)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    public void noPayCar() {
+        carTotal++;
+    }
+    public void displayTollRates() {
+        System.out.printf("%-33s %-10s%n", "Vehicle Type", "Toll Rate");
+        System.out.println("-----------------------------------------------");
+        for (int i = 0; i < vehicleTypes.length; i++) {
+            System.out.printf("%-33s Rs%-9.2f%n", vehicleTypes[i], tollRates[i]);
+        }
+    }
+    public void displaySummary() {
+        System.out.println("Total Number of vehicles passed: " + carTotal);
+        System.out.println("Total amount collected: " + cashTotal);
+    }
+    private void collectToll(String date, double amount) {
+        dateWiseToll.put(date, dateWiseToll.getOrDefault(date, 0.0) + amount);
+        String month = date.substring(0, 7); 
+        monthWiseToll.put(month, monthWiseToll.getOrDefault(month, 0.0) + amount);
+        String year = date.substring(0, 4);  
+        yearWiseToll.put(year, yearWiseToll.getOrDefault(year, 0.0) + amount);
+    }
+    public double getDateWiseToll(String date) {
+        return dateWiseToll.getOrDefault(date, 0.0);
+    }
+    public double getMonthWiseToll(String month) {
+        return monthWiseToll.getOrDefault(month, 0.0);
+    }
+    public double getYearWiseToll(String year) {
+        return yearWiseToll.getOrDefault(year, 0.0);
+    }
+    public static void main(String[] args) {
+        TollBoothSystem tollSystem = new TollBoothSystem();
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+        while (running) {
+            System.out.println("Menu:");
+            System.out.println("1. Display Toll Rates");
+            System.out.println("2. Collect Toll");
+            System.out.println("3. Display Summary");
+            System.out.println("4. View Date-wise Toll");
+            System.out.println("5. View Month-wise Toll");
+            System.out.println("6. View Year-wise Toll");
+            System.out.println("7. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); 
+            switch (choice) {
+                case 1:
+                    tollSystem.displayTollRates();
+                    break;
+                case 2:
+                    System.out.print("Enter vehicle type (Car, Light Commercial Vehicles, Truck, Three Axial Commercial Vehicles, MAV, Oversized Vehicle): ");
+                    String vehicleType = scanner.nextLine();
+                    System.out.print("Enter date (yyyy-MM-dd): ");
+                    String date = scanner.nextLine();
+                    tollSystem.payToll(vehicleType, date);
+                    System.out.println("Toll collected successfully.");
+                    break;
+                case 3:
+                    tollSystem.displaySummary();
+                    break;
+                case 4:
+                    System.out.print("Enter date (yyyy-MM-dd) to get date-wise toll: ");
+                    String dateQuery = scanner.nextLine();
+                    System.out.println("Date-wise toll: " + tollSystem.getDateWiseToll(dateQuery));
+                    break;
+                case 5:
+                    System.out.print("Enter month (yyyy-MM) to get month-wise toll: ");
+                    String monthQuery = scanner.nextLine();
+                    System.out.println("Month-wise toll: " + tollSystem.getMonthWiseToll(monthQuery));
+                    break;
+                case 6:
+                    System.out.print("Enter year (yyyy) to get year-wise toll: ");
+                    String yearQuery = scanner.nextLine();
+                    System.out.println("Year-wise toll: " + tollSystem.getYearWiseToll(yearQuery));
+                    break;
+                case 7:
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+            }
+        }
+        scanner.close();
+    }
+}
